@@ -1,6 +1,8 @@
+require("humanize-duration")
+
 <template>
  <!-- représente le code HTML du template de vue = modèle-->
-    <sections class="todoapp">
+    <div class="todoapp">
         <header class="header">
             
             <h1>Todos</h1>
@@ -15,7 +17,7 @@
                     <li class="todo"  v-for="(todo, index) in todos" :key=index >
                         <div class="view"  v-if="!todo.completed">
                             <input type="checkbox" v-model="todo.completed" @click="update(todo)">
-                            <label >{{ todo.name }} le {{ todo.dateCreated }}</label>
+                            <label >{{ todo.name }} le {{ todo.dateCreated.toLocaleString() }}</label>
                         </div>
                     </li>
                 </ul>
@@ -26,7 +28,7 @@
                 <ul class="todo-list-done" >
                     <li class="todo" v-for="todo in todos" :key=todo.name>
                         <div class="view" v-if="todo.completed">
-                            <label>{{ todo.name }} le {{ todo.dateEnded }}</label>
+                            <label>{{ todo.name }} le {{ todo.dateEnded.toLocaleString() }}</label>
                         </div>
                     </li>
                 </ul>
@@ -37,16 +39,17 @@
                 <ul class="todo-list-done" >
                     <li class="todo" v-for="todo in todos" :key=todo.name>
                         <div class="view" v-if="todo.completed">
-                            <label >{{ todo.name }} : </label>
+                            <label >{{ todo.name }} : {{ humanizeDuree(todo.duree) }} </label>
                         </div>
                     </li>
                 </ul>
             </div>
         </div>
-    </sections>
+    </div>
 </template>
 
 <script>
+const humanizeDuration = require("humanize-duration");
 // logique javascript
 export default {
     
@@ -66,8 +69,6 @@ export default {
           hasTodos() {
               return this.todos.length > 0
           },
-       
-
      },
 
      methods: {
@@ -75,16 +76,21 @@ export default {
              this.todos.push({
                  name: this.newTodo,
                  completed: false,
-                 dateCreated: new Date().toLocaleString()
+                 dateCreated: new Date()
              })
              this.newTodo =''
          },
          update (todo){
-             
              this.todos.find(t => {
                  if(todo == t){
-                todo.dateEnded= new Date().toLocaleString()}
+                todo.dateEnded= new Date()
+                todo.duree =  todo.dateEnded.getTime() - todo.dateCreated.getTime()
+                }
              }) 
+        },
+
+        humanizeDuree (duration){
+            return humanizeDuration(duration, {language:'fr'})
         }
      }
 }
